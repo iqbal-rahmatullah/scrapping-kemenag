@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://zikra:zikra1skhd7hy%23%23@server.sto.dev.apps360.id:5432/zikra_new_dev_01?schema=public"
+}
+
+model MstProvince {
+  id     String   @id @db.VarChar()
+  name   String   @db.VarChar()
+  Region Region[]
+
+  @@map("mst_province")
+}
+
+model Region {
+  id         String      @id @db.VarChar()
+  provinceId String      @map("province_id") @db.VarChar()
+  province   MstProvince @relation(fields: [provinceId], references: [id])
+  name       String      @db.VarChar()
+  PrayTime   PrayTime[]
+
+  @@map("mst_regions")
+}
+
+model PrayTime {
+  id       String   @id @db.VarChar()
+  date     DateTime
+  name     String   @db.VarChar()
+  time     String   @db.VarChar()
+  regionId String   @map("region_id") @db.VarChar()
+  Region   Region   @relation(fields: [regionId], references: [id])
+
+  @@map("mst_pray_time")
+}
