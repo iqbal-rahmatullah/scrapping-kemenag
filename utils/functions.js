@@ -99,3 +99,120 @@ export const saveJadwalSholat = (fileName, newData) => {
 
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf-8")
 }
+
+export const formattingJadwalByRegion = async (originFile, year) => {
+  const prayTime = await getFileJson(originFile)
+
+  for (let pray of prayTime) {
+    const kabupaten = pray.kota
+      .replace(/ /g, "-")
+      .replace(/\./g, "")
+      .toLowerCase()
+
+    const monthFile = Object.keys(pray.data)[0].split("-")
+    const filePath = path.join(
+      __dirname,
+      "../data/final" +
+        `/${year}/` +
+        kabupaten +
+        `-${monthFile[1]}-${monthFile[0]}` +
+        ".json"
+    )
+
+    const dirPath = path.dirname(filePath)
+    let oldData = []
+
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true })
+
+      oldData = JSON.parse(fs.readFileSync(filePath, "utf-8"))
+    }
+
+    for (let time in pray.data) {
+      for (let timePray in pray.data[time]) {
+        if (timePray !== "tanggal") {
+          const finalData = {
+            date: time,
+            name: timePray,
+            time: pray.data[time][timePray],
+          }
+          let attempts = 0
+          const maxAttempts = 100000
+          oldData.push(finalData)
+
+          while (attempts < maxAttempts) {
+            try {
+              fs.writeFileSync(
+                filePath,
+                JSON.stringify(oldData, null, 2),
+                "utf-8"
+              )
+              console.log("Data inserted successfully:", finalData.name)
+              break
+            } catch (error) {
+              attempts++
+              console.error(
+                `Attempt ${attempts} failed for ID: ${finalData.id}. Error:`,
+                error
+              )
+              if (attempts >= maxAttempts) {
+                console.error(
+                  `Failed to insert data after ${maxAttempts} attempts. Skipping ID: ${finalData.id}`
+                )
+              } else {
+                console.log(
+                  `Retrying to insert data for ID: ${finalData.id}...`
+                )
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+export const formattingJadwalByRegionOneYear = async (originFile, year) => {
+  const prayTime = await getFileJson(originFile)
+
+  for (let pray of prayTime) {
+    const kabupaten = pray.kota
+      .replace(/ /g, "-")
+      .replace(/\./g, "")
+      .toLowerCase()
+
+    for (let time in pray.data) {
+      const monthFile = time.split("-")
+      const checkFile = path.join(
+        __dirname,
+        "../data/final" + `/${year}/${monthFile[1]}/`
+      )
+
+      if (!fs.existsSync(checkFile)) {
+        fs.mkdirSync(checkFile, { recursive: true })
+      }
+
+      const filePath = path.join(
+        __dirname,
+        "../data/final" +
+          `/${year}/${monthFile[1]}/` +
+          kabupaten +
+          `-${monthFile[1]}-${monthFile[0]}` +
+          ".json"
+      )
+
+      let oldData = []
+
+      if (fs.existsSync(filePath)) {
+        oldData = JSON.parse(fs.readFileSync(filePath, "utf-8"))
+      }
+
+      oldData.push(pray.data[time])
+
+      fs.writeFileSync(filePath, JSON.stringify(oldData, null, 2), "utf-8")
+      console.log("Data inserted successfully:", kabupaten)
+    }
+  }
+}
+
+// formattingJadwalByRegionOneYear("jadwal-sholat/2024.old.json", "2024")
