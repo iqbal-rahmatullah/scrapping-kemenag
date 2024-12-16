@@ -172,7 +172,7 @@ export const formattingJadwalByRegion = async (originFile, year) => {
   }
 }
 
-export const formattingJadwalByRegionOneYear = async (originFile, year) => {
+export const formattingJadwalByRegionOneYear = async (originFile) => {
   const prayTime = await getFileJson(originFile)
 
   for (let pray of prayTime) {

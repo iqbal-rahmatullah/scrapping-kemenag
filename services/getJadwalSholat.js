@@ -13,11 +13,15 @@ const BLUE = "\x1b[34m"
 const getJadwalSholat = async () => {
   const BASE_URL = "https://bimasislam.kemenag.go.id/ajax/getShalatbln"
   const dataKabupaten = await getFileJson("kabupaten.json")
-  const year = 2026
+  const year = process.argv[2]
+  const earlyMonth = process.argv[3]
+
+  console.log(`Fetching data for year ${year}...`)
+  console.log(`Fetching data for month ${earlyMonth}...`)
 
   for (let provinsi of dataKabupaten) {
     for (let kabupaten of provinsi.kabupaten) {
-      for (let i = 1; i <= 12; i++) {
+      for (let i = earlyMonth; i <= 12; i++) {
         const MAX_RETRIES = 10000
         let retries = 0
         let dataFetched = false
