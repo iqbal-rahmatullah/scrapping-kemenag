@@ -1,6 +1,6 @@
-import { uid } from "uid"
 import prisma from "../prisma/db.js"
 import { getFileJson } from "../utils/functions.js"
+import { v4 as uuidv4 } from "uuid"
 
 const injectRegionFromPraytime = async () => {
   const prayTime = await getFileJson("jadwal-sholat/2024.json")
@@ -35,7 +35,7 @@ const injectRegionFromPraytime = async () => {
 
     await prisma.region.create({
       data: {
-        id: uid(32),
+        id: uuidv4(),
         name: kabupaten,
       },
     })
